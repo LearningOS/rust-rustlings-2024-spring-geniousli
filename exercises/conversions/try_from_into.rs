@@ -1,4 +1,5 @@
 // try_from_into.rs
+
 //
 // TryFrom is a simple and safe type conversion that may fail in a controlled
 // way under some circumstances. Basically, this is the same as From. The main
@@ -27,7 +28,6 @@ enum IntoColorError {
     IntConversion,
 }
 
-// I AM NOT DONE
 
 // Your task is to complete this implementation and return an Ok result of inner
 // type Color. You need to create an implementation for a tuple of three
@@ -41,6 +41,16 @@ enum IntoColorError {
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = IntoColorError;
     fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
+        let rng = 0..=255;
+        if rng.contains(&tuple.0) && rng.contains(&tuple.1) && rng.contains(&tuple.2) {
+            Ok(Color {
+                red: tuple.0 as u8,
+                green: tuple.1 as u8,
+                blue: tuple.2 as u8,
+            })
+        } else {
+            Err(IntoColorError::IntConversion)
+        }
     }
 }
 
@@ -48,13 +58,37 @@ impl TryFrom<(i16, i16, i16)> for Color {
 impl TryFrom<[i16; 3]> for Color {
     type Error = IntoColorError;
     fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
+        let rng = 0..=255;
+        if rng.contains(&arr[0]) && rng.contains(&arr[1]) && rng.contains(&arr[2]) {
+            Ok(Color {
+                red: arr[0] as u8,
+                green: arr[1] as u8,
+                blue: arr[2] as u8,
+            })
+        } else {
+            Err(IntoColorError::IntConversion)
+        }
     }
 }
 
 // Slice implementation
 impl TryFrom<&[i16]> for Color {
     type Error = IntoColorError;
-    fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
+    fn try_from(arr: &[i16]) -> Result<Self, Self::Error> {
+        if arr.len() == 3 {
+            let rng = 0..=255;
+            if rng.contains(&arr[0]) && rng.contains(&arr[1]) && rng.contains(&arr[2]) {
+                Ok(Color {
+                    red: arr[0] as u8,
+                    green: arr[1] as u8,
+                    blue: arr[2] as u8,
+                })
+            } else {
+                Err(IntoColorError::IntConversion)
+            }
+        } else {
+            Err(IntoColorError::BadLen)
+        }
     }
 }
 

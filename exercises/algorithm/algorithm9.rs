@@ -1,12 +1,12 @@
 /*
-	heap
-	This question requires you to implement a binary heap function
+    heap
+    This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
 
+#[derive(Debug)]
 pub struct Heap<T>
 where
     T: Default,
@@ -14,6 +14,7 @@ where
     count: usize,
     items: Vec<T>,
     comparator: fn(&T, &T) -> bool,
+    iter_index: usize,
 }
 
 impl<T> Heap<T>
@@ -23,8 +24,9 @@ where
     pub fn new(comparator: fn(&T, &T) -> bool) -> Self {
         Self {
             count: 0,
-            items: vec![T::default()],
+            items: vec![],
             comparator,
+            iter_index: 0,
         }
     }
 
@@ -37,11 +39,25 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.items.push(value);
+        let mut loca = self.count;
+        while loca > 0 {
+            let mut par = self.parent_idx(loca);
+            if par < 0 {
+                break;
+            }
+            if (self.comparator)(&self.items[loca], &self.items[par]) {
+                self.items.swap(loca, par);
+                loca = par;
+            } else {
+                break;
+            }
+        }
+        self.count += 1;
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
-        idx / 2
+        (idx - 1) / 2
     }
 
     fn children_present(&self, idx: usize) -> bool {
@@ -49,16 +65,47 @@ where
     }
 
     fn left_child_idx(&self, idx: usize) -> usize {
-        idx * 2
+        idx * 2 + 1
     }
 
     fn right_child_idx(&self, idx: usize) -> usize {
-        self.left_child_idx(idx) + 1
+        self.left_child_idx(idx) + 2
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        let l = self.left_child_idx(idx);
+        let r = self.right_child_idx(idx);
+        if r >= self.count {
+            l
+        } else {
+            if (self.comparator)(&self.items[l], &self.items[r]) {
+                l
+            } else {
+                r
+            }
+        }
+    }
+
+    fn pop(&mut self) -> Option<T> {
+        if self.count == 0 {
+            return None;
+        }
+        let res = self.items.swap_remove(0);
+        self.count -= 1;
+        let mut loca = 0;
+        while loca < self.count {
+            let chil = self.smallest_child_idx(loca);
+            if chil >= self.count {
+                break;
+            }
+            if (self.comparator)(&self.items[chil], &self.items[loca]) {
+                self.items.swap(chil, loca);
+                loca = chil;
+            } else {
+                break;
+            }
+        }
+        Some(res)
     }
 }
 
@@ -84,8 +131,7 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        self.pop()
     }
 }
 
